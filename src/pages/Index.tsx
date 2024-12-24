@@ -27,11 +27,13 @@ const Index = () => {
         console.log("Received message:", event.data);
         if (event.data === 'xss-success') {
           console.log("XSS Success detected!");
-          handleLevelComplete();
-          // Clean up only after success
-          window.removeEventListener('message', messageHandler);
-          document.body.removeChild(sandbox);
-          setIsLoading(false);
+          // Add delay to allow alert to show
+          setTimeout(() => {
+            handleLevelComplete();
+            window.removeEventListener('message', messageHandler);
+            document.body.removeChild(sandbox);
+            setIsLoading(false);
+          }, 1000); // 1 second delay
         }
       };
       window.addEventListener('message', messageHandler);
