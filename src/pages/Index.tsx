@@ -17,12 +17,9 @@ const Index = () => {
     console.log("Testing payload:", payload);
     
     try {
-      // Create a sandbox iframe to test the payload
+      // Create a sandbox iframe
       const sandbox = document.createElement('iframe');
       sandbox.style.display = 'none';
-      // Add necessary sandbox permissions
-      sandbox.sandbox.add('allow-scripts');
-      sandbox.sandbox.add('allow-same-origin');
       document.body.appendChild(sandbox);
 
       // Set up message listener for XSS success
@@ -49,32 +46,30 @@ const Index = () => {
           <body>
             ${payload}
             <script>
-              try {
-                // Override alert to communicate success
-                window.alert = function() {
-                  window.parent.postMessage('xss-success', '*');
-                  return true;
-                };
-                // Also catch console.log attempts
-                console.log = function() {
-                  window.parent.postMessage('xss-success', '*');
-                  return true;
-                };
-              } catch (e) {
-                console.error('Error in sandbox:', e);
-              }
+              window.alert = function() {
+                window.parent.postMessage('xss-success', '*');
+                return true;
+              };
+              window.confirm = function() {
+                window.parent.postMessage('xss-success', '*');
+                return true;
+              };
+              window.prompt = function() {
+                window.parent.postMessage('xss-success', '*');
+                return true;
+              };
+              console.log = function() {
+                window.parent.postMessage('xss-success', '*');
+                return true;
+              };
             </script>
           </body>
         </html>
       `;
 
-      // Write content to iframe
-      const doc = sandbox.contentDocument || sandbox.contentWindow?.document;
-      if (doc) {
-        doc.open();
-        doc.write(html);
-        doc.close();
-      }
+      // Write content to iframe using srcdoc instead of contentDocument
+      sandbox.srcdoc = html;
+      sandbox.setAttribute('sandbox', 'allow-scripts allow-same-origin');
 
       // Clean up after 2 seconds
       setTimeout(() => {
