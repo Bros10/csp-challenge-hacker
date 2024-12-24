@@ -20,7 +20,9 @@ const Index = () => {
       // Create a sandbox iframe to test the payload
       const sandbox = document.createElement('iframe');
       sandbox.style.display = 'none';
-      sandbox.sandbox.add('allow-scripts'); // Allow script execution
+      // Add necessary sandbox permissions
+      sandbox.sandbox.add('allow-scripts');
+      sandbox.sandbox.add('allow-same-origin');
       document.body.appendChild(sandbox);
 
       // Set up message listener for XSS success
@@ -47,16 +49,20 @@ const Index = () => {
           <body>
             ${payload}
             <script>
-              // Override alert to communicate success
-              window.alert = function() {
-                window.parent.postMessage('xss-success', '*');
-                return true;
-              };
-              // Also catch console.log attempts
-              console.log = function() {
-                window.parent.postMessage('xss-success', '*');
-                return true;
-              };
+              try {
+                // Override alert to communicate success
+                window.alert = function() {
+                  window.parent.postMessage('xss-success', '*');
+                  return true;
+                };
+                // Also catch console.log attempts
+                console.log = function() {
+                  window.parent.postMessage('xss-success', '*');
+                  return true;
+                };
+              } catch (e) {
+                console.error('Error in sandbox:', e);
+              }
             </script>
           </body>
         </html>
