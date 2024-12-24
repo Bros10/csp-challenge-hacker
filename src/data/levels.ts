@@ -17,13 +17,35 @@ export const levels: Level[] = [
         description: "Allows scripts from same origin and inline scripts"
       }
     ],
-    hint: "Think about how 'unsafe-inline' affects script execution...",
-    solution: "<script>alert(1)</script>"
-  },
+    hint: "Think about how 'unsafe-inline' affects script execution..."
+    },
   {
     id: 2,
-    title: "No Inline Scripts",
-    description: "This time inline scripts are blocked. How can we still execute JavaScript?",
+    title: "Image Events",
+    description: "Scripts are blocked, but what about image events?",
+    csp: [
+      {
+        name: "default-src",
+        value: "'self'",
+        description: "Restricts all resources to be loaded only from the same origin"
+      },gi
+      {
+        name: "script-src",
+        value: "'none'",
+        description: "Blocks all scripts"
+      },
+      {
+        name: "img-src",
+        value: "*",
+        description: "Allows images from any source"
+      }
+    ],
+    hint: "Images have event handlers too..."  
+  },
+  {
+    id: 3,
+    title: "Base Tag Fun",
+    description: "Now we're blocking most things, but what about HTML elements that can affect how resources load?",
     csp: [
       {
         name: "default-src",
@@ -33,27 +55,14 @@ export const levels: Level[] = [
       {
         name: "script-src",
         value: "'self'",
-        description: "Only allows scripts from the same origin"
-      }
-    ],
-    hint: "Look for other ways to execute JavaScript without inline scripts..."
-  },
-  {
-    id: 3,
-    title: "Strict CSP",
-    description: "Now we're using a stricter CSP with nonces. Can you find a way around it?",
-    csp: [
-      {
-        name: "default-src",
-        value: "'none'",
-        description: "Blocks all resources by default"
+        description: "Only allows same-origin scripts"
       },
       {
-        name: "script-src",
-        value: "'self' 'nonce-random123'",
-        description: "Only allows scripts from same origin and with correct nonce"
+        name: "base-uri",
+        value: "*",
+        description: "Allows any base URI to be set"
       }
     ],
-    hint: "Is there a way to reuse existing scripts on the page?"
-  }
+    hint: "The <base> tag can change where relative URLs load from..."
+    }
 ];
