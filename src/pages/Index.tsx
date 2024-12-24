@@ -48,25 +48,26 @@ const Index = () => {
             <meta http-equiv="Content-Security-Policy" content="${cspString}">
           </head>
           <body>
-            ${payload}
             <script>
-              window.alert = function() {
+              // Override these functions before any XSS payload runs
+              window.alert = function(msg) {
                 window.parent.postMessage('xss-success', '*');
                 return true;
               };
-              window.confirm = function() {
+              window.confirm = function(msg) {
                 window.parent.postMessage('xss-success', '*');
                 return true;
               };
-              window.prompt = function() {
+              window.prompt = function(msg) {
                 window.parent.postMessage('xss-success', '*');
                 return true;
               };
-              console.log = function() {
+              console.log = function(msg) {
                 window.parent.postMessage('xss-success', '*');
                 return true;
               };
             </script>
+            ${payload}
           </body>
         </html>
       `;
