@@ -28,7 +28,7 @@ export const levels: Level[] = [
         name: "default-src",
         value: "'self'",
         description: "Restricts all resources to be loaded only from the same origin"
-      },gi
+      },
       {
         name: "script-src",
         value: "'none'",
