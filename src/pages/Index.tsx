@@ -21,17 +21,21 @@ const Index = () => {
       const sandbox = document.createElement('iframe');
       sandbox.style.display = 'none';
       document.body.appendChild(sandbox);
-
+  
       // Set up message listener for XSS success
       const messageHandler = (event: MessageEvent) => {
         console.log("Received message:", event.data);
         if (event.data === 'xss-success') {
           console.log("XSS Success detected!");
           handleLevelComplete();
+          // Clean up only after success
+          window.removeEventListener('message', messageHandler);
+          document.body.removeChild(sandbox);
+          setIsLoading(false);
         }
       };
       window.addEventListener('message', messageHandler);
-
+  
       // Set up CSP
       const cspString = level.csp.map(d => `${d.name} ${d.value}`).join('; ');
       console.log("Applied CSP:", cspString);
@@ -66,18 +70,25 @@ const Index = () => {
           </body>
         </html>
       `;
-
-      // Write content to iframe using srcdoc instead of contentDocument
+  
+      // Write content to iframe using srcdoc
       sandbox.srcdoc = html;
       sandbox.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-
-      // Clean up after 2 seconds
+  
+      // Set up a timeout for no success after 5 seconds
       setTimeout(() => {
-        window.removeEventListener('message', messageHandler);
-        document.body.removeChild(sandbox);
-        setIsLoading(false);
-      }, 2000);
-
+        if (sandbox.parentNode) {  // Check if sandbox still exists
+          window.removeEventListener('message', messageHandler);
+          document.body.removeChild(sandbox);
+          setIsLoading(false);
+          toast({
+            variant: "destructive",
+            title: "Timeout",
+            description: "No XSS detected. Try a different payload.",
+          });
+        }
+      }, 5000);
+  
     } catch (error) {
       console.error("Error testing payload:", error);
       setIsLoading(false);
