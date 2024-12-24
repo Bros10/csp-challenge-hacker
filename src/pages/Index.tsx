@@ -20,11 +20,14 @@ const Index = () => {
       // Create a sandbox iframe to test the payload
       const sandbox = document.createElement('iframe');
       sandbox.style.display = 'none';
+      sandbox.sandbox.add('allow-scripts'); // Allow script execution
       document.body.appendChild(sandbox);
 
       // Set up message listener for XSS success
       const messageHandler = (event: MessageEvent) => {
+        console.log("Received message:", event.data);
         if (event.data === 'xss-success') {
+          console.log("XSS Success detected!");
           handleLevelComplete();
         }
       };
@@ -32,6 +35,7 @@ const Index = () => {
 
       // Set up CSP
       const cspString = level.csp.map(d => `${d.name} ${d.value}`).join('; ');
+      console.log("Applied CSP:", cspString);
       
       // Create HTML content with CSP
       const html = `
@@ -46,6 +50,12 @@ const Index = () => {
               // Override alert to communicate success
               window.alert = function() {
                 window.parent.postMessage('xss-success', '*');
+                return true;
+              };
+              // Also catch console.log attempts
+              console.log = function() {
+                window.parent.postMessage('xss-success', '*');
+                return true;
               };
             </script>
           </body>
@@ -53,7 +63,12 @@ const Index = () => {
       `;
 
       // Write content to iframe
-      sandbox.srcdoc = html;
+      const doc = sandbox.contentDocument || sandbox.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+      }
 
       // Clean up after 2 seconds
       setTimeout(() => {
@@ -74,6 +89,7 @@ const Index = () => {
   };
 
   const handleLevelComplete = () => {
+    console.log("Level complete handler triggered");
     // Show success message
     toast({
       title: "Level Complete! 🎉",
