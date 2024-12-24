@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 interface LevelInfoProps {
   level: Level;
@@ -13,7 +14,12 @@ interface LevelInfoProps {
 
 export const LevelInfo = ({ level }: LevelInfoProps) => {
   return (
-    <div className="space-y-4">
+    <motion.div 
+      className="space-y-4"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-primary glow">Level {level.id}: {level.title}</h2>
         {level.hint && (
@@ -30,6 +36,6 @@ export const LevelInfo = ({ level }: LevelInfoProps) => {
         )}
       </div>
       <p className="text-foreground/80">{level.description}</p>
-    </div>
+    </motion.div>
   );
 };
